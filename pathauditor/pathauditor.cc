@@ -18,7 +18,6 @@
 #include <fcntl.h>
 #include <linux/magic.h>
 #include <stdio.h>
-#include <sys/capability.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
@@ -222,7 +221,7 @@ StatusOr<bool> PathIsUserControlled(const ProcessInformation &proc_info,
 
   std::deque<std::string> path_queue = absl::StrSplit(path, '/', absl::SkipEmpty());
 
-  for (int i = 0; i < max_iteration_count; i++) {
+  for (size_t i = 0; i < max_iteration_count; i++) {
     if (path_queue.empty()) {
       return false;
     }
@@ -291,7 +290,7 @@ StatusOr<bool> PathIsUserControlled(const ProcessInformation &proc_info,
           return FailedPreconditionError(
               absl::StrCat("Could not read link for path element ", elem));
         }
-        if (link_len >= link_buf.memsize()) {
+        if ((size_t)link_len >= link_buf.memsize()) {
           return FailedPreconditionError(
               absl::StrCat("Link is larger than PATH_MAX ",
                            std::string(link_buf.data(), link_buf.memsize())));
